@@ -41,44 +41,6 @@
       z-index: 10;
     }
 
-    #textbox2 {
-      box-shadow: 0 0 25px rgba(0, 123, 255, 0.5);
-      margin: 40px auto 0 auto;
-      padding: 2vw;
-      background-color: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      width: 90vw;
-      max-width: 1200px;
-      z-index: 2;
-      position: relative;
-    }
-
-    .faq-item {
-      flex: 1 1 300px;
-      background: rgba(0, 0, 0, 0.4);
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 0 12px rgba(0, 123, 255, 0.3);
-      font-size: clamp(0.9rem, 2vw, 1.2rem);
-      line-height: 1.4;
-      min-height: 120px;
-      max-width: 100%;
-	  transition: all 0.3s ease;
-    }
-	
-	.faq-item:hover {
-      box-shadow:
-        0 14px 30px rgba(0, 123, 255, 0.6),
-        0 9px 20px rgba(0, 0, 0, 0.85);
-      transform: translateY(-4px);
-    }
-
     .main-text {
       font-size: 36px;
       font-weight: bold;
@@ -102,9 +64,8 @@
       border-radius: 6px;
       overflow: hidden;
       opacity: 0.6;
-      transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.4s ease;
+      transition: all 0.3s ease;
       cursor: pointer;
-      display: block;
       flex-shrink: 0;
       filter: grayscale(100%) brightness(1.2);
     }
@@ -120,10 +81,7 @@
     .icon-button:hover {
       opacity: 1;
       transform: scale(1.1);
-      box-shadow:
-        0 0 8px #66ccff,
-        0 0 15px #3399ff,
-        0 0 20px #007acc;
+      box-shadow: 0 0 15px #007acc;
     }
 
     .icon-button:hover img {
@@ -162,6 +120,50 @@
       position: relative;
     }
 
+    .video-container {
+	  width: 90vw;
+      margin: 40px auto;
+      text-align: center;
+      z-index: 2;
+      position: relative;
+    }
+
+    #textbox2 {
+      box-shadow: 0 0 25px rgba(0, 123, 255, 0.5);
+      margin: 40px auto 0 auto;
+      padding: 2vw;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 90vw;
+      max-width: 1200px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .faq-item {
+      flex: 1 1 300px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 12px rgba(0, 123, 255, 0.3);
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      line-height: 1.4;
+      min-height: 120px;
+      max-width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+      box-shadow: 0 14px 30px rgba(0, 123, 255, 0.6), 0 9px 20px rgba(0, 0, 0, 0.85);
+      transform: translateY(-4px);
+    }
+
     .parent-box {
       margin: 60px auto;
       width: 90vw;
@@ -189,9 +191,7 @@
       background-color: rgba(10, 10, 15, 0.85);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
-      box-shadow:
-        0 10px 18px rgba(0, 123, 255, 0.3),
-        0 5px 10px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 10px 18px rgba(0, 123, 255, 0.3), 0 5px 10px rgba(0, 0, 0, 0.7);
       color: #eee;
       font-size: 1.15rem;
       font-weight: 600;
@@ -205,9 +205,7 @@
     }
 
     .frame:hover {
-      box-shadow:
-        0 14px 30px rgba(0, 123, 255, 0.6),
-        0 9px 20px rgba(0, 0, 0, 0.85);
+      box-shadow: 0 14px 30px rgba(0, 123, 255, 0.6), 0 9px 20px rgba(0, 0, 0, 0.85);
       transform: translateY(-4px);
     }
 
@@ -237,10 +235,10 @@
   <div class="fixed-top">
     <div class="main-text">Join Our Discord For Executers and Scripts</div>
     <div class="controls-row">
-      <a class="icon-button" href="https://discord.gg/QQkbcYxVdt" target="_blank" title="Join Discord">
+      <a class="icon-button" href="https://discord.gg/QQkbcYxVdt" target="_blank">
         <img src="https://i.pinimg.com/736x/b5/84/b1/b584b1776f49b350c54e5172f9a1f102.jpg" alt="Discord Icon" />
       </a>
-      <a class="icon-button" href="https://www.youtube.com/@c00lkidd-is-back" target="_blank" title="Visit YouTube">
+      <a class="icon-button" href="https://www.youtube.com/@c00lkidd-is-back" target="_blank">
         <img src="https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png" alt="YouTube Icon" />
       </a>
       <button class="top-btn" id="homeBtn">Home</button>
@@ -249,12 +247,21 @@
     </div>
   </div>
 
+	<div class="video-container">
+    <iframe width="560" height="315"
+      src="https://www.youtube.com/embed/LOLguisb5bk?start=216"
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen>
+    </iframe>
+  </div>
+
   <div id="textbox1" class="frame">
     <strong>Welcome to the Future of Exploiting</strong>
     This platform is dedicated to teaching advanced techniques for customizing and modifying your Roblox experience.<br><br>
     To access tools such as executors and scripts, you can join our official Discord server by clicking the button above.
   </div>
-
+	
   <div id="textbox2">
     <div class="faq-item"><strong>Q:</strong> What executor do you use?<br><strong>A:</strong> I'm using <strong>Solara</strong> at the moment.</div>
     <div class="faq-item"><strong>Q:</strong> Can you give me the scripts?<br><strong>A:</strong> Yes, the scripts are in the <strong>#scripts</strong> channel.</div>
@@ -264,7 +271,6 @@
     <div class="faq-item"><strong>Q:</strong> Where can I get the scripts you use?<br><strong>A:</strong> You can get them in the <strong>#scripts</strong> channel.</div>
     <div class="faq-item"><strong>Q:</strong> Are the scripts FE (visible to everyone)?<br><strong>A:</strong> Yes, all the scripts I give are <strong>FE</strong>.</div>
     <div class="faq-item"><strong>Q:</strong> What is FE?<br><strong>A:</strong> FE stands for <strong>Filtering Enabled</strong>, meaning the effects are visible to all players.</div>
-    <div class="faq-item"><strong>Q:</strong> Is the Solara download link official and safe?<br><strong>A:</strong> Yes, it's the official Solara link confirmed by owner <strong>Qui</strong>, and it has no virus.</div>
     <div class="faq-item"><em>Ask other questions in <strong>Our discord #team-c00lkidd</strong></em></div>
   </div>
 
