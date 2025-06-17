@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roblox Lua Editor</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #1e1e1e;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    body.light-mode {
+      background: #f9f9f9;
+      color: #222;
+    }
+
+    .menubar {
+      background: #2d2d2d;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      height: 44px;
+      gap: 10px;
+      user-select: none;
+    }
+
+    .menubar button {
+      background: #444;
+      color: #eee;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .menubar button:hover {
+      background: #666;
+    }
+
+    #tabs {
+      display: flex;
+      overflow-x: auto;
+      white-space: nowrap;
+      background: #222;
+      padding: 6px 10px;
+      user-select: none;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: #333;
+      color: #ccc;
+      margin-right: 6px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: 500;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .tab.active {
+      background: #4CAF50;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 6px #4CAF50AA;
+    }
+
+    .tab .close-btn {
+      margin-left: 12px;
+      color: #aaa;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+
+    .tab .close-btn:hover {
+      color: #ff4c4c;
+    }
+
+    #container {
+      display: flex;
+      height: calc(100% - 88px); /* menubar + tabs height */
+    }
+
+    #editor {
+      flex-grow: 1;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Light mode overrides */
+    body.light-mode .menubar {
+      background: #ddd;
+      color: #111;
+    }
+
+    body.light-mode #tabs {
+      background: #eee;
+    }
+
+    body.light-mode .tab {
+      background: #ccc;
+      color: #222;
+    }
+
+    body.light-mode .tab.active {
+      background: #4CAF50;
+      color: #fff;
+      box-shadow: 0 0 6px #4CAF50AA;
+    }
+
+    body.light-mode .menubar button {
+      background: #bbb;
+      color: #222;
+    }
+
+    /* Tooltip styling */
+    .tooltip {
+      position: relative;
+    }
+
+    .tooltip:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(50, 50, 50, 0.85);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 10;
+      opacity: 0.95;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.40.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <div class="menubar">
+    <button class="tooltip" onclick="openFile()" data-tip="Ctrl+O">📂 Open</button>
+    <button class="tooltip" onclick="saveFile()" data-tip="Ctrl+S">💾 Save</button>
+    <button class="tooltip" onclick="runCode()" data-tip="Ctrl+Enter">▶ Run</button>
+    <button class="tooltip" onclick="createTab()" data-tip="New Tab">➕</button>
+    <button class="tooltip" onclick="toggleTheme()" data-tip="Toggle Theme">🌗</button>
+  </div>
+
+  <div id="tabs"></div>
+
+  <div id="container">
+    <div id="editor"></div>
+  </div>
+
+  <script>
+    window.require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.40.0/min/vs' } });
+    let editor, activeTabId = null, tabCounter = 1;
+    const tabs = [];
+
+    function createTab(filename = `Untitled-${tabCounter++}.lua`, content = '') {
+      const id = Date.now().toString();
+      tabs.push({ id, filename, content });
+      renderTabs();
+      setActiveTab(id);
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('tabs');
+      container.innerHTML = '';
+      tabs.forEach(tab => {
+        const el = document.createElement('div');
+        el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+        el.textContent = tab.filename;
+
+        if (tabs.length > 1) {
+          const close = document.createElement('span');
+          close.className = 'close-btn';
+          close.textContent = '×';
+          close.onclick = e => { e.stopPropagation(); closeTab(tab.id); };
+          el.appendChild(close);
+        }
+
+        el.onclick = () => { saveCurrentTabContent(); setActiveTab(tab.id); };
+        container.appendChild(el);
+      });
+    }
+
+    function setActiveTab(id) {
+      const tab = tabs.find(t => t.id === id);
+      if (!tab) return;
+      activeTabId = id;
+      editor.setValue(tab.content);
+      renderTabs();
+    }
+
+    function saveCurrentTabContent() {
+      if (!activeTabId) return;
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab) tab.content = editor.getValue();
+    }
+
+    function closeTab(id) {
+      const index = tabs.findIndex(t => t.id === id);
+      if (index === -1) return;
+      tabs.splice(index, 1);
+      if (activeTabId === id) {
+        activeTabId = tabs.length ? tabs[0].id : null;
+        editor.setValue(tabs.length ? tabs[0].content : '');
+      }
+      renderTabs();
+    }
+
+    function openFile() {
+      saveCurrentTabContent();
+      window.chrome?.webview?.postMessage("openFile");
+    }
+
+    function saveFile() {
+      if (!activeTabId) {
+        alert("No file open");
+        return;
+      }
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (!tab) return;
+
+      const newFilePath = prompt("Enter file path to save:", tab.filename);
+      if (!newFilePath) return;
+
+      saveCurrentTabContent();
+      tab.filename = newFilePath;
+      renderTabs();
+
+      window.chrome?.webview?.postMessage(`saveFile:${newFilePath}::${tab.content}`);
+    }
+
+    function runCode() {
+      saveCurrentTabContent();
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (!tab) {
+        alert("No active tab to run");
+        return;
+      }
+      window.chrome?.webview?.postMessage(`runCode:${tab.content}`);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+      const theme = document.body.classList.contains('light-mode') ? 'vs' : 'roblox-dark';
+      monaco.editor.setTheme(theme);
+    }
+
+    window.addEventListener("keydown", e => {
+      if (e.ctrlKey && e.key.toLowerCase() === 's') { e.preventDefault(); saveFile(); }
+      if (e.ctrlKey && e.key.toLowerCase() === 'o') { e.preventDefault(); openFile(); }
+      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); runCode(); }
+    });
+
+    window.chrome?.webview?.addEventListener('message', event => {
+      const msg = event.data;
+      if (msg.startsWith("fileContent:")) {
+        const content = msg.substring(12);
+        createTab("OpenedFile.lua", content);
+      } else if (msg === "fileSaved") {
+        alert("File saved!");
+      }
+    });
+
+    require(['vs/editor/editor.main'], function () {
+      monaco.languages.register({ id: 'roblox-lua' });
+
+      monaco.languages.setMonarchTokensProvider('roblox-lua', {
+        tokenizer: {
+          root: [
+            [/\b(game|workspace|script|Instance|Vector3|CFrame|UDim2|Enum|Color3|getgenv|wait|spawn|coroutine|tick|time|RunService|Players|Lighting|MaterialService|TweenService|UserInputService|Mouse|Humanoid|Camera|BasePart|SurfaceGui|ScreenGui|loadstring|HttpGet)\b/, 'roblox-global'],
+            [/\b(function|local|end|if|then|else|elseif|for|while|do|repeat|until|return|break|in|and|or|not|nil|true|false)\b/, 'keyword'],
+            [/[a-zA-Z_]\w*/, 'identifier'],
+            [/[ \t\r\n]+/, 'white'],
+            [/[{}()[\]]/, '@brackets'],
+            [/[<>](=)?/, 'operator'],
+            [/==|~=|[+\-*/%^#=]/, 'operator'],
+            [/\d+\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+            [/\d+/, 'number'],
+            [/--\[=*?\[.*?\]=*?\]/, 'comment'],
+            [/--.*/, 'comment'],
+            [/\"([^\"\\]|\\.)*$/, 'string.invalid'],
+            [/\"([^\"\\]|\\.)*\"/, 'string'],
+            [/'([^'\\]|\\.)*$/, 'string.invalid'],
+            [/'([^'\\]|\\.)*'/, 'string'],
+          ],
+          whitespace: [
+            [/[ \t\r\n]+/, 'white'],
+          ]
+        }
+      });
+
+      monaco.editor.defineTheme('roblox-dark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+          { token: 'roblox-global', foreground: 'ffb454', fontStyle: 'bold' },
+          { token: 'keyword', foreground: '569cd6' },
+          { token: 'comment', foreground: '6a9955', fontStyle: 'italic' },
+          { token: 'string', foreground: 'ce9178' },
+          { token: 'number', foreground: 'b5cea8' },
+          { token: 'operator', foreground: 'd4d4d4' },
+        ],
+        colors: {}
+      });
+
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        value: `-- Roblox Lua Script\nlocal part = Instance.new("Part")\npart.Parent = workspace`,
+        language: 'roblox-lua',
+        theme: 'roblox-dark',
+        automaticLayout: true,
+      });
+
+      editor.onDidChangeModelContent(() => {
+        saveCurrentTabContent();
+      });
+
+      createTab();
+    });
+  </script>
+</body>
+</html>
