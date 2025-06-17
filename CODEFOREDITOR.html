@@ -257,13 +257,14 @@
     }
 
     function runCode() {
-      saveCurrentTabContent();
+      /*saveCurrentTabContent();
       const tab = tabs.find(t => t.id === activeTabId);
       if (!tab) {
         alert("No active tab to run");
         return;
       }
-      window.chrome?.webview?.postMessage(`runCode:${tab.content}`);
+      window.chrome?.webview?.postMessage(`runCode:${tab.content}`);*/
+      alert("disabled for now");
     }
 
     function toggleTheme() {
