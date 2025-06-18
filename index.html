@@ -229,6 +229,32 @@
       display: block;
       margin-bottom: 12px;
     }
+	
+	/* Virtual fluid mouse cursor */
+    #virtual-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0, 200, 255, 0.6);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 12px rgba(0, 200, 255, 0.7);
+      z-index: 9999;
+      will-change: transform;
+    }
+
+    /* Cursor changes when hovering text */
+    #virtual-cursor.hovering {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 100, 150, 0.8);
+      box-shadow: 0 0 18px rgba(255, 100, 150, 1);
+    }
+	
   </style>
 </head>
 <body>
@@ -256,7 +282,9 @@
       allowfullscreen>
     </iframe>
   </div>
-
+	
+  <div id="virtual-cursor"></div>
+	
   <div id="textbox1" class="frame">
     <strong>Welcome to the Future of Exploiting</strong>
     This platform is dedicated to teaching advanced techniques for customizing and modifying your Roblox experience.<br><br>
@@ -331,7 +359,51 @@
   </div>
 
   <audio id="click-sound" src="https://freesound.org/data/previews/256/256113_3263906-lq.mp3" preload="auto"></audio>
+  
+  <script>
+    const cursor = document.getElementById('virtual-cursor');
 
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let currentX = mouseX;
+    let currentY = mouseY;
+
+    const speed = 0.2;
+
+    const hoverTargets = document.querySelectorAll('body *');
+
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      let hovering = false;
+      hoverTargets.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (
+          mouseX >= rect.left &&
+          mouseX <= rect.right &&
+          mouseY >= rect.top &&
+          mouseY <= rect.bottom
+        ) {
+          hovering = true;
+        }
+      });
+
+      cursor.classList.toggle('hovering', hovering);
+    });
+
+    function animate() {
+      currentX += (mouseX - currentX) * speed;
+      currentY += (mouseY - currentY) * speed;
+
+      cursor.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+  
   <script>
     const clickSound = document.getElementById('click-sound');
 
